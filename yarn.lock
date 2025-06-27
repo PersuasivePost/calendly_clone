@@ -59,6 +59,14 @@
     std-env "^3.9.0"
     swr "^2.3.3"
 
+"@clerk/themes@^2.2.52":
+  version "2.2.52"
+  resolved "https://registry.yarnpkg.com/@clerk/themes/-/themes-2.2.52.tgz#880522a9bd811040af78a989dfed05bee7e3a9af"
+  integrity sha512-uezPpMTOmNc4zh2dWs/AnGtf4a4aGan7npmdUVOnJdaOwjk4mU13LOJsLiYnxAAfQaXdRW16fKB6C4aD+hjfzQ==
+  dependencies:
+    "@clerk/types" "^4.62.0"
+    tslib "2.8.1"
+
 "@clerk/types@^4.62.0":
   version "4.62.0"
   resolved "https://registry.yarnpkg.com/@clerk/types/-/types-4.62.0.tgz#5b602efab3431ecc73e8211232fdc8bfba71e853"
