@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
+import { Button } from "./ui/button";
 
 export default function PublicNavBar() {
   return (
@@ -20,15 +21,12 @@ export default function PublicNavBar() {
       <section className="sticky top-0 flex justify-between">
         <div className="flex flex-1 max-sm:gap-0 sm:gap-6">
           <SignInButton>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 cursor-pointer hover:scale-150 duration-500 rounded-2xl shadow-2xl">
+            <Button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 cursor-pointer hover:scale-150 duration-500 rounded-2xl shadow-2xl">
               Login
-            </button>
+            </Button>
           </SignInButton>
           <SignUpButton>
-            <Button
-              className="bg-white hover:bg-gray-100 text-gray-800 font-semiboldpy-2 px-4 border border-gray-400 cursor-pointer hover:scale-150 duration-500 rounded-2xl shadow-2xl"
-              variant={"outline"}
-            >
+            <Button className="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 border border-gray-400 cursor-pointer hover:scale-150 duration-500 rounded-2xl shadow-2xl">
               Register
             </Button>
           </SignUpButton>
