@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CalendarPlus, CalendarRange } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
 import { getEvents } from "@/server/actions/events";
+import EventCard from "@/components/cards/EventCard";
 
 export default async function EventsPage() {
   const { userId, redirectToSignIn } = await auth();
