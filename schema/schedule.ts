@@ -1,4 +1,5 @@
 import { DAYS_OF_WEEK_IN_ORDER_IN_ORDER } from "@/constants";
+import { timeToFloat } from "@/lib/utils";
 import z from "zod";
 
 export const scheduleFormSchema = z.object({
@@ -32,21 +33,23 @@ export const scheduleFormSchema = z.object({
           );
         });
 
-        if(overlaps) {
-            ctx.addIssue({
-                code: "custom",
-                message: "Availability overlaps with another, path: [index, "startTime"],
-            })
+        if (overlaps) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Availability overlaps with another",
+            path: [index, "startTime"],
+          });
         }
 
         if (
-            timeToFloat(availability.startTime) >= timeToFloat(availability.endTime)
+          timeToFloat(availability.startTime) >=
+          timeToFloat(availability.endTime)
         ) {
-            ctx.addIssue({
-                code: "custom",
-                message: "end time must be after start time",
-                path: [index, "endTime"]
-            })
+          ctx.addIssue({
+            code: "custom",
+            message: "end time must be after start time",
+            path: [index, "endTime"],
+          });
         }
       });
     }),

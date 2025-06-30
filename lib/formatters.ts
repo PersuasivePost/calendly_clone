@@ -41,3 +41,4 @@ const dateTimeFormatter = new Intl.DateTimeFormat(undefined, {
 export function formatDateTime(date: Date) {
   return dateTimeFormatter.format(date);
 }
+
