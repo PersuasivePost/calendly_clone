@@ -20,7 +20,7 @@ export const PrivateNavLinks = [
     label: "My Schedule",
   },
   {
-    imgURL: "assets/public.svg",
+    imgURL: "/assets/public.svg",
     route: "/book",
     label: "Public Profile",
   },
