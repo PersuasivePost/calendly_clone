@@ -33,15 +33,20 @@ export type FullSchedule = ScheduleRow & {
   availabilities: AvailabilityRow[];
 };
 
-export async function getSchedule(userId: string): Promise<FullSchedule> {
-  const schedule = await db.query.scheduleTable.findFirst({
-    where: ({ clerkUserId }, { eq }) => eq(clerkUserId, userId),
-    with: {
-      availabilities: true,
-    },
-  });
+export async function getSchedule(userId: string): Promise<FullSchedule | null> {
+  try {
+    const schedule = await db.query.scheduleTable.findFirst({
+      where: ({ clerkUserId }, { eq }) => eq(clerkUserId, userId),
+      with: {
+        availabilities: true,
+      },
+    });
 
-  return schedule as FullSchedule;
+    return schedule as FullSchedule | null;
+  } catch (error) {
+    console.error("Error fetching schedule:", error);
+    return null;
+  }
 }
 
 export async function saveSchedule(
@@ -98,67 +103,82 @@ export async function getValidTimesFromSchedule(
   timesInOrder: Date[], // All possible time slots to check
   event: { clerkUserId: string; durationInMinutes: number }
 ): Promise<Date[]> {
-  const { clerkUserId: userId, durationInMinutes } = event;
+  try {
+    const { clerkUserId: userId, durationInMinutes } = event;
 
-  // define the start and end of the overall range to check
-  const start = timesInOrder[0];
-  const end = timesInOrder.at(-1);
+    // define the start and end of the overall range to check
+    const start = timesInOrder[0];
+    const end = timesInOrder.at(-1);
 
-  if (!start || !end) return [];
+    if (!start || !end) return [];
 
-  const schedule = await getSchedule(userId);
+    const schedule = await getSchedule(userId);
 
-  if (schedule == null) return [];
+    if (schedule == null) {
+      console.log(`No schedule found for user ${userId}`);
+      return [];
+    }
 
-  const groupedAvailabilities = schedule.availabilities.reduce(
-    (acc, availability) => {
-      const day = availability.dayOfWeek;
-      if (!acc[day]) {
-        acc[day] = [];
-      }
-      acc[day].push(availability);
-      return acc;
-    },
-    {} as Partial<
-      Record<
-        (typeof DAYS_OF_WEEK_IN_ORDER_IN_ORDER)[number],
-        (typeof scheduleAvailabilityTable.$inferSelect)[]
+    const groupedAvailabilities = schedule.availabilities.reduce(
+      (acc, availability) => {
+        const day = availability.dayOfWeek;
+        if (!acc[day]) {
+          acc[day] = [];
+        }
+        acc[day].push(availability);
+        return acc;
+      },
+      {} as Partial<
+        Record<
+          (typeof DAYS_OF_WEEK_IN_ORDER_IN_ORDER)[number],
+          (typeof scheduleAvailabilityTable.$inferSelect)[]
+        >
       >
-    >
-  );
-
-  // fetch all existing google calendar events between start and end
-  const eventTimes = await getCalendarEventTimes(userId, { start, end });
-
-  // filter and return only valid time slots based on availability and conflicts
-  return timesInOrder.filter((intervalDate) => {
-    const availabilities = getAvailabilities(
-      groupedAvailabilities,
-      intervalDate,
-      schedule.timezone
     );
 
-    // Define the time range for a potential event starting at this interval
-    const eventInterval = {
-      start: intervalDate, // Proposed start time
-      end: addMinutes(intervalDate, durationInMinutes), // Proposed end time (start + duration)
-    };
+    // fetch all existing google calendar events between start and end
+    let eventTimes: { start: Date; end: Date }[] = [];
+    try {
+      eventTimes = await getCalendarEventTimes(userId, { start, end });
+    } catch (error) {
+      console.warn("Google Calendar integration failed, proceeding without calendar conflicts:", error);
+      // Continue without calendar integration - just use schedule availability
+      eventTimes = [];
+    }
 
-    // Keep only the time slots that satisfy two conditions:
-    return (
-      // 1. This time slot does not overlap with any existing calendar events
-      eventTimes.every((eventTime) => {
-        return !areIntervalsOverlapping(eventTime, eventInterval);
-      }) &&
-      // 2. The entire proposed event fits within at least one availability window
-      availabilities.some((availability) => {
-        return (
-          isWithinInterval(eventInterval.start, availability) && // Start is inside availability
-          isWithinInterval(eventInterval.end, availability) // End is inside availability
-        );
-      })
-    );
-  });
+    // filter and return only valid time slots based on availability and conflicts
+    return timesInOrder.filter((intervalDate) => {
+      const availabilities = getAvailabilities(
+        groupedAvailabilities,
+        intervalDate,
+        schedule.timezone
+      );
+
+      // Define the time range for a potential event starting at this interval
+      const eventInterval = {
+        start: intervalDate, // Proposed start time
+        end: addMinutes(intervalDate, durationInMinutes), // Proposed end time (start + duration)
+      };
+
+      // Keep only the time slots that satisfy two conditions:
+      return (
+        // 1. This time slot does not overlap with any existing calendar events
+        eventTimes.every((eventTime) => {
+          return !areIntervalsOverlapping(eventTime, eventInterval);
+        }) &&
+        // 2. The entire proposed event fits within at least one availability window
+        availabilities.some((availability) => {
+          return (
+            isWithinInterval(eventInterval.start, availability) && // Start is inside availability
+            isWithinInterval(eventInterval.end, availability) // End is inside availability
+          );
+        })
+      );
+    });
+  } catch (error) {
+    console.error("Error in getValidTimesFromSchedule:", error);
+    throw new Error("Failed to get available times. Please check your schedule configuration.");
+  }
 }
 
 function getAvailabilities(

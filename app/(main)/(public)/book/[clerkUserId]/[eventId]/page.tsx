@@ -48,10 +48,26 @@ export default async function BookingPage({
 
   const endDate = endOfDay(addYears(startDate, 1));
 
-  const validTimes = await getValidTimesFromSchedule(
-    eachMinuteOfInterval({ start: startDate, end: endDate }, { step: 15 }),
-    event
-  );
+  let validTimes: Date[] = [];
+  
+  try {
+    validTimes = await getValidTimesFromSchedule(
+      eachMinuteOfInterval({ start: startDate, end: endDate }, { step: 15 }),
+      event
+    );
+  } catch (error) {
+    console.error("Error getting valid times:", error);
+    // Return a user-friendly error page
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-800 px-4 rounded-md flex items-center gap-2 text-sm max-w-md mx-auto mt-6">
+        <AlertTriangle className="w-5 h-5" />
+        <span>
+          Unable to load available times. This might be due to missing schedule or calendar integration issues.
+          Please try again later or contact the event host.
+        </span>
+      </div>
+    );
+  }
 
   if (validTimes.length === 0) {
     return <NoTimeSlots event={event} calendarUser={calendarUser} />;
