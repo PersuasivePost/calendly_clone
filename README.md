@@ -1,5 +1,7 @@
 # Calendly Clone
 
+A modern implementation of a Calendly-like scheduling application using Next.js 15, TypeScript, React 19, Tailwind CSS v4, Neon PostgreSQL, Drizzle ORM, Clerk authentication, and Google Calendar API integration. This project demonstrates full-stack development with real-time availability checking, timezone management, and seamless meeting booking functionality.
+
 Build and Deploy a modern, full-stack Calendly clone with Google Calendar integration—manage timezones, events, and meeting links like a pro using Next.js 15, Typescript, React 19, Tailwind CSS v4, Neon, Drizzle, Clerk and much more.
 
 ## Features
