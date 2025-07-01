@@ -9,7 +9,7 @@ export default async function PublicProfilePage({
   const { clerkUserId } = await params;
   const client = await clerkClient();
   const user = await client.users.getUser(clerkUserId);
-  const { fullName } = user;
+  const { fullName, imageUrl } = user;
 
-  return <PublicProfile userId={clerkUserId} fullName={fullName} />;
+  return <PublicProfile userId={clerkUserId} fullName={fullName} imageUrl={imageUrl} />;
 }
