@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Calendly Clone
+
+Build and Deploy a modern, full-stack Calendly clone with Google Calendar integration—manage timezones, events, and meeting links like a pro using Next.js 15, Typescript, React 19, Tailwind CSS v4, Neon, Drizzle, Clerk and much more.
+
+## Features
+
+- 🔒 Authentication with Clerk
+- 📅 Google Calendar integration
+- 🌍 Timezone management
+- 🗓️ Create, edit, and share events
+- 🕒 Book meetings with real-time availability
+- 🖥️ Modern UI with Tailwind CSS v4
+- 🗄️ Database: Neon (Postgres) + Drizzle ORM
+- ⚡ Full-stack with Next.js 15 (App Router)
+- 🧑‍💻 TypeScript & React 19
+- 🧩 Modular, scalable codebase
+
+## Tech Stack
+
+- [Next.js 15](https://nextjs.org/)
+- [React 19](https://react.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS v4](https://tailwindcss.com/)
+- [Drizzle ORM](https://orm.drizzle.team/)
+- [Neon](https://neon.tech/) (Postgres)
+- [Clerk](https://clerk.com/) (Auth)
+- [Google Calendar API](https://developers.google.com/calendar)
+- [shadcn/ui](https://ui.shadcn.com/) (UI components)
 
 ## Getting Started
 
-First, run the development server:
+### 1. Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/your-username/calendly-clone.git
+cd calendly_clone
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Set up environment variables
 
-## Learn More
+Create a `.env` file in the root directory and add:
 
-To learn more about Next.js, take a look at the following resources:
+```
+DATABASE_URL=your_neon_postgres_url
+CLERK_SECRET_KEY=your_clerk_secret_key
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=your_google_redirect_uri
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 4. Database setup (Drizzle + Neon)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Generate migrations:
+  ```bash
+  yarn db:generate
+  ```
+- Apply migrations:
+  ```bash
+  yarn db:migrate
+  ```
 
-## Deploy on Vercel
+### 5. Run the development server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+yarn dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Visit [http://localhost:3000](http://localhost:3000) to view the app.
+
+## Google Calendar Integration
+
+- Make sure your Google Cloud project is set up and OAuth credentials are configured.
+- Add your Google OAuth credentials to the `.env` file.
+- Only approved test users can use Google login until your app is verified by Google.
+
+## Folder Structure
+
+```
+app/                # Next.js app directory
+components/         # Reusable React components
+constants/          # App-wide constants
+server/             # Server actions and API integrations
+lib/                # Utility functions
+public/             # Static assets
+schema/             # Zod schemas
+```
+
+## Scripts
+
+- `yarn dev` - Start development server
+- `yarn build` - Build for production
+- `yarn start` - Start production server
+- `yarn db:generate` - Generate Drizzle migrations
+- `yarn db:migrate` - Apply Drizzle migrations
+
+## Deployment
+
+- Deploy on [Vercel](https://vercel.com/) or your preferred platform.
+- Set all environment variables in your deployment dashboard.
+
+```sql
+PersuasivePost
+```
