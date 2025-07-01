@@ -10,7 +10,20 @@ import { BatchItem } from "drizzle-orm/batch";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCalendarEventTimes } from "../google/googleCalendar";
-import { addMinutes, areIntervalsOverlapping, isFriday, isMonday, isSaturday, isSunday, isThursday, isTuesday, isWednesday, isWithinInterval, setHours, setMinutes } from "date-fns";
+import {
+  addMinutes,
+  areIntervalsOverlapping,
+  isFriday,
+  isMonday,
+  isSaturday,
+  isSunday,
+  isThursday,
+  isTuesday,
+  isWednesday,
+  isWithinInterval,
+  setHours,
+  setMinutes,
+} from "date-fns";
 import { DAYS_OF_WEEK_IN_ORDER_IN_ORDER } from "@/constants";
 
 type ScheduleRow = typeof scheduleTable.$inferSelect;
@@ -97,16 +110,28 @@ export async function getValidTimesFromSchedule(
 
   if (schedule == null) return [];
 
-  const groupedAvailabilities = Object.groupBy(
-    schedule.availabilities,
-    (a) => a.dayOfWeek
+  const groupedAvailabilities = schedule.availabilities.reduce(
+    (acc, availability) => {
+      const day = availability.dayOfWeek;
+      if (!acc[day]) {
+        acc[day] = [];
+      }
+      acc[day].push(availability);
+      return acc;
+    },
+    {} as Partial<
+      Record<
+        (typeof DAYS_OF_WEEK_IN_ORDER_IN_ORDER)[number],
+        (typeof scheduleAvailabilityTable.$inferSelect)[]
+      >
+    >
   );
 
   // fetch all existing google calendar events between start and end
   const eventTimes = await getCalendarEventTimes(userId, { start, end });
 
   // filter and return only valid time slots based on availability and conflicts
-  return timesInOrder.filter(intervalDate => {
+  return timesInOrder.filter((intervalDate) => {
     const availabilities = getAvailabilities(
       groupedAvailabilities,
       intervalDate,
@@ -122,11 +147,11 @@ export async function getValidTimesFromSchedule(
     // Keep only the time slots that satisfy two conditions:
     return (
       // 1. This time slot does not overlap with any existing calendar events
-      eventTimes.every(eventTime => {
+      eventTimes.every((eventTime) => {
         return !areIntervalsOverlapping(eventTime, eventInterval);
       }) &&
       // 2. The entire proposed event fits within at least one availability window
-      availabilities.some(availability => {
+      availabilities.some((availability) => {
         return (
           isWithinInterval(eventInterval.start, availability) && // Start is inside availability
           isWithinInterval(eventInterval.end, availability) // End is inside availability
