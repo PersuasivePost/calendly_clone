@@ -27,7 +27,8 @@ async function getOAutClient(clerkUserId: string) {
 
     return oAuthClient;
   } catch (error: any) {
-    throw new Error(`Failed to get OAuth client: ${error.message}`);
+    console.warn("Failed to get OAuth client:", error.message);
+    throw new Error(`Google Calendar not available: ${error.message}`);
   }
 }
 
@@ -37,6 +38,14 @@ export async function getCalendarEventTimes(
   { start, end }: { start: Date; end: Date }
 ): Promise<{ start: Date; end: Date }[]> {
   try {
+    // Check if Google OAuth is properly configured
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+      console.warn(
+        "Google OAuth credentials not configured, skipping calendar integration"
+      );
+      return [];
+    }
+
     const oAuthClient = await getOAutClient(clerkUserId);
 
     if (!oAuthClient) {
@@ -84,9 +93,12 @@ export async function getCalendarEventTimes(
         ) || []
     );
   } catch (error: any) {
-    throw new Error(
-      `Failed to fetch calendar events: ${error.message || error}`
+    console.warn(
+      "Failed to fetch calendar events, continuing without Google Calendar:",
+      error.message
     );
+    // Return empty array so the booking system works without Google Calendar
+    return [];
   }
 }
 
